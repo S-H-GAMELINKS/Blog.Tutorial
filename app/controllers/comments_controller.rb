@@ -7,7 +7,7 @@ class CommentsController < ApplicationController
     end
 
     def destroy
-        @post.comments.destroy! comments_params
+        @post.comments.destroy params[:id]
         redirect_to @post
     end
 
