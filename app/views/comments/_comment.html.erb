@@ -1,1 +1,2 @@
-<p><%= comment.content %></p> 
+<p><%= comment.content %></p>
+<p><%= link_to "Delete", post_comment_path(comment), method: :delete, data: { confirm: 'Are you sure?' } %> 
