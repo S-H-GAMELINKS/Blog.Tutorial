@@ -168,3 +168,60 @@ end
 ```
 
 あとは、`rails s` でローカルサーバを建てて実際にコメントが作成&削除できていればOKです。
+
+### Heroku へのデプロイ
+
+[こちら](https://devcenter.heroku.com/articles/heroku-cli) を参考にしてHeroku CLI をインストールします。
+
+次に、Herokuへデプロイするように`Gemfile`を修正します。
+
+まず、`sqlite3` を本番環境で使用せず、開発環境で使用するように変更します。
+
+```ruby:Gemfile
+group :development do
+  # Use sqlite3 as the database for Active Record
+  gem 'sqlite3'
+end
+```
+
+Herokuでは`Postgres`を本番環境で使用するため、以下のように本番環境用に`pg`を使用します
+
+```ruby:Gemfile
+group :production do
+  gem 'pg'
+end
+```
+
+変更後、`bundle install` を実行します
+
+```shell
+bundle install
+```
+
+`Heroku CLI`を使用してデプロイ先のアプリを作成します
+
+```shell
+heroku login
+heroku apps:create -a blog-sample
+```
+
+デプロイするために、`heroku`というリモートリポジトリを追加します
+
+```shell
+heroku git:remote -a blog-sample
+```
+
+ここまでの変更を`commit`して`push`します。
+
+```shell
+git commit -am "deploy to Heroku"
+git push heroku master
+```
+
+その後、`rails db:migrate`を実行します。
+
+```shell
+heroku run rails db:migrate -a blog-sample
+```
+
+最後に、`https://blog-sample.herokuapp.com`にアクセスしてブログが表示されていればOKです
