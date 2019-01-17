@@ -130,7 +130,7 @@ end
 次に、`app/views/comments/_new.html.erb`を作成します
 
 ```erb:app/views/comments/_new.html.erb
-<%= form_for([ @post, Comment.new ], remote: true) do |form| %>
+<%= form_with(model: [ @post, Comment.new ], remote: true) do |form| %>
     Your Comment:<br>
     <%= form.text_area :content, size: '50x20' %><br>
     <%= form.submit %>
