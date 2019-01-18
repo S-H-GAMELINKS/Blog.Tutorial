@@ -298,6 +298,113 @@ bundle install
 
 これで、リッチなテキストエディタが使用できるようになります。
 
+### Bootstrap4の適用
+
+このままではデザインなどが簡素すぎるので`Bootstrap`を使いたいと思います。
+
+まず、`Gemfile`に`gem 'bootstrap', '~> 4.2.1'`と`gem 'jquery-rails'`を追加し、`bundle install`します。
+
+```ruby:Gemfile
+gem 'bootstrap', '~> 4.2.1'
+gem 'jquery-rails'
+```
+
+```shell
+bundle install
+```
+
+その後、`app/assets/javascripts/application.js`と`app/assets/stylesheets/application.scss`を下記のように変更します
+
+```js:app/assets/javascripts/application.js
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, or any plugin's
+// vendor/assets/javascripts directory can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// compiled file. JavaScript code in this file should be added after the last require_* statement.
+//
+// Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
+// about supported directives.
+//
+//= require rails-ujs
+//= require activestorage
+//= require trix
+//= require jquery3
+//= require popper
+//= require bootstrap-sprockets
+//= require turbolinks
+//= require_tree .
+```
+
+```scss:app/assets/stylesheets/application.scss
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+ @import "trix";
+ @import "bootstrap";
+```
+
+その後、`config/boot.rb`を以下のように修正します
+
+```ruby:config/boot.rb
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
+
+ENV['EXECJS_RUNTIME'] = 'Node'
+
+require 'bundler/setup' # Set up gems listed in the Gemfile.
+require 'bootsnap/setup' # Speed up boot time by caching expensive operations.
+```
+
+これで`Bootstrap`が使用できるようになりました。
+
+最後に、`app/views/layouts/_header.html.erb`を作成し、`app/views/layouts/application.html.erb`でパーシャルとして呼び出します。
+
+```erb:app/views/layouts/_header.html.erb
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <%= link_to "Blog", root_path, class: "navbar-brand" %>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+</nav>
+```
+
+```erb:app/views/layouts/application.html.erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BlogTutorial</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+  </head>
+
+  <body>
+    <%= render 'layouts/header'%>
+    <div class="container">
+      <%= yield %>
+    </div>
+  </body>
+</html>
+```
+
+`rails s`でサーバを起動し、ナビゲーションバーが表示されていればOKです。
+
 ### Heroku へのデプロイ
 
 [こちら](https://devcenter.heroku.com/articles/heroku-cli) を参考にしてHeroku CLI をインストールします。
