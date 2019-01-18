@@ -170,6 +170,134 @@ end
 
 あとは、`rails s` でローカルサーバを建てて実際にコメントが作成&削除できていればOKです。
 
+### Trixでリッチなテキストエディターを使う
+
+`trix`を`Gemfile`に追加します
+
+```ruby:Gemfile
+gem 'trix'
+```
+
+その後、`bundle install` を実行します
+
+```shell
+bundle install
+```
+
+`bundle install`した後、`app/assets/javascripts/application.js`に`//= require trix`を追加します
+
+```js:app/assets/javascripts/application.js
+// This is a manifest file that'll be compiled into application.js, which will include all the files
+// listed below.
+//
+// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, or any plugin's
+// vendor/assets/javascripts directory can be referenced here using a relative path.
+//
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// compiled file. JavaScript code in this file should be added after the last require_* statement.
+//
+// Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
+// about supported directives.
+//
+//= require rails-ujs
+//= require activestorage
+//= require trix
+//= require turbolinks
+//= require_tree .
+```
+
+次に、`app/assets/javascripts/application.css`を`app/assets/javascripts/application.scss`にリネームして以下のように変更します
+
+```scss:app/assets/javascripts/application.scss
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+ @import "trix";
+```
+
+` @import "trix";` を追加しただけですね
+
+最後に、`app/views/posts/_form.html.erb`と`app/views/show.html.erb`を以下のように変更します。
+
+```erb:app/views/posts/_form.html.erb
+<%= form_with(model: post, local: true) do |form| %>
+  <% if post.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h2>
+
+      <ul>
+      <% post.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </div>
+
+  <div class="field">
+    <%= form.label :content %>
+    <%= form.hidden_field :content, id: :article_text %>
+    <trix-editor input="article_text"></trix-editor>
+  </div>
+
+  <div class="field">
+    <%= form.label :date %>
+    <%= form.date_select :date %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
+```
+
+```erb:app/views/show.html.erb
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Title:</strong>
+  <%= @post.title %>
+</p>
+
+<p>
+  <strong>Content:</strong>
+  <%= sanitize @post.content, tags: %w(h1 h2 h3 h4 h5 h6 ul ol li p a img table tr td em br strong div), attributes:  %w(id class href) %>
+</p>
+
+<p>
+  <strong>Date:</strong>
+  <%= @post.date %>
+</p>
+
+<h2>Comments</h2>
+  <div id="comments">
+    <%= render @post.comments %>
+  </div>
+
+<%= render 'comments/new', post: @post %> 
+
+<%= link_to 'Edit', edit_post_path(@post) %> |
+<%= link_to 'Back', posts_path %>
+```
+
+これで、リッチなテキストエディタが使用できるようになります。
+
 ### Heroku へのデプロイ
 
 [こちら](https://devcenter.heroku.com/articles/heroku-cli) を参考にしてHeroku CLI をインストールします。
